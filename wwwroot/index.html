@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protobuf vs JSON Comparison</title>
+    <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.5/dist/protobuf.min.js"></script>
+    <script>
+        protobuf.load("/message.proto", function(err, root) {
+            if (err) {
+                console.error("Error loading proto file:", err);
+                return;
+            }
+
+            const Greeting = root.lookupType("Greeting");
+
+            // Protobuf POST
+            document.getElementById("sendProtoButton").addEventListener("click", async () => {
+                const name = document.getElementById("name").value;
+                const content = document.getElementById("message").value;
+
+                const payload = { name, content };
+                const greetingMessage = Greeting.create(payload);
+                const buffer = Greeting.encode(greetingMessage).finish();
+
+                const startTime = performance.now();
+                const response = await fetch("/greeting", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-protobuf" },
+                    body: buffer
+                });
+                const endTime = performance.now();
+
+                const responseBuffer = await response.arrayBuffer();
+                const decodedMessage = Greeting.decode(new Uint8Array(responseBuffer));
+                document.getElementById("protoPostResponse").textContent = 
+                    `Response: ${decodedMessage.content}\nSize: ${buffer.byteLength} bytes\nTime: ${endTime - startTime} ms`;
+            });
+
+            // JSON POST
+            document.getElementById("sendJsonButton").addEventListener("click", async () => {
+                const name = document.getElementById("name").value;
+                const content = document.getElementById("message").value;
+
+                const payload = JSON.stringify({ name, content });
+
+                const startTime = performance.now();
+                const response = await fetch("/json-greeting", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: payload
+                });
+                const endTime = performance.now();
+
+                const jsonResponse = await response.json();
+                document.getElementById("jsonPostResponse").textContent = 
+                    `Response: ${jsonResponse.content}\nSize: ${payload.length} bytes\nTime: ${endTime - startTime} ms`;
+            });
+
+            // Protobuf GET
+            document.getElementById("getProtoButton").addEventListener("click", async () => {
+                const name = document.getElementById("getName").value;
+
+                const startTime = performance.now();
+                const response = await fetch(`/api/greeting/${name}`, {
+                    method: "GET",
+                    headers: { "Accept": "application/x-protobuf" }
+                });
+                const endTime = performance.now();
+
+                const buffer = await response.arrayBuffer();
+                const decodedMessage = Greeting.decode(new Uint8Array(buffer));
+                document.getElementById("protoGetResponse").textContent = 
+                    `Name: ${decodedMessage.name}, Content: ${decodedMessage.content}\nSize: ${buffer.byteLength} bytes\nTime: ${endTime - startTime} ms`;
+            });
+
+            // JSON GET
+            document.getElementById("getJsonButton").addEventListener("click", async () => {
+                const name = document.getElementById("getName").value;
+
+                const startTime = performance.now();
+                const response = await fetch(`/api/json-greeting/${name}`, {
+                    method: "GET",
+                    headers: { "Accept": "application/json" }
+                });
+                const endTime = performance.now();
+
+                const jsonResponse = await response.json();
+                const responseText = JSON.stringify(jsonResponse);
+                document.getElementById("jsonGetResponse").textContent = 
+                    `Name: ${jsonResponse.name}, Content: ${jsonResponse.content}\nSize: ${responseText.length} bytes\nTime: ${endTime - startTime} ms`;
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Protobuf vs JSON Comparison</h1>
+    
+    <h2>POST Request Demo</h2>
+    <input type="text" id="name" placeholder="Your name">
+    <input type="text" id="message" placeholder="Your message">
+    <button id="sendProtoButton">Send Protobuf POST</button>
+    <button id="sendJsonButton">Send JSON POST</button>
+    <div>
+        <h3>Protobuf Response:</h3>
+        <pre id="protoPostResponse"></pre>
+        <h3>JSON Response:</h3>
+        <pre id="jsonPostResponse"></pre>
+    </div>
+
+    <h2>GET Request Demo</h2>
+    <input type="text" id="getName" placeholder="Enter a name">
+    <button id="getProtoButton">Get Protobuf Greeting</button>
+    <button id="getJsonButton">Get JSON Greeting</button>
+    <div>
+        <h3>Protobuf Response:</h3>
+        <pre id="protoGetResponse"></pre>
+        <h3>JSON Response:</h3>
+        <pre id="jsonGetResponse"></pre>
+    </div>
+</body>
+</html>

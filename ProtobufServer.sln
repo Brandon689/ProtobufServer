@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35103.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProtobufServer", "ProtobufServer.csproj", "{B03AE60F-4CB5-40FF-B826-48086CF64CEA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B03AE60F-4CB5-40FF-B826-48086CF64CEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B03AE60F-4CB5-40FF-B826-48086CF64CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B03AE60F-4CB5-40FF-B826-48086CF64CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B03AE60F-4CB5-40FF-B826-48086CF64CEA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {509260AA-8A86-4A3C-B91E-5ACBCB76C3B1}
+	EndGlobalSection
+EndGlobal
