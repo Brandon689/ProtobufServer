@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+message Fruit {
+  string name = 1;
+  string color = 2;
+}
+
+message FruitBasket {
+  string owner = 1;
+  repeated Fruit fruits = 2;
+  int32 total_weight = 3;
+}
+
+message FruitRequest {
+  string basket_owner = 1;
+}
+
+message FruitResponse {
+  FruitBasket basket = 1;
+}

@@ -19,9 +19,12 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0-preview.6.24328.4" />
   </ItemGroup>
 
-<ItemGroup>
-	<Protobuf Include="message.proto" />
-</ItemGroup>
+	<ItemGroup>
+		<Protobuf Include="Protos/**/*.proto" />
+	</ItemGroup>
 
+	<ItemGroup>
+	  <None Remove="protos\fruits.proto" />
+	</ItemGroup>
 
 </Project>

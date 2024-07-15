@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Protobuf vs JSON Comparison</title>
-    <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.5/dist/protobuf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.3.2/dist/protobuf.min.js"></script>
     <script>
-        protobuf.load("/message.proto", function(err, root) {
+        protobuf.load("/Protos/message.proto", function(err, root) {
             if (err) {
                 console.error("Error loading proto file:", err);
                 return;
@@ -118,5 +118,102 @@
         <h3>JSON Response:</h3>
         <pre id="jsonGetResponse"></pre>
     </div>
+
+    <h2>Fruit Basket Demo</h2>
+        <input type="text" id="basketOwner" placeholder="Basket owner name">
+        <button id="getFruitBasketButton">Get Fruit Basket</button>
+        <pre id="fruitBasketResponse"></pre>
+
+        <script>
+        // protobuf.load("/Protos/fruits.proto", function(err, root) {
+        //     if (err) throw err;
+
+        //     const FruitResponse = root.lookupType("FruitResponse");
+
+        //     document.getElementById("getFruitBasketButton").addEventListener("click", async () => {
+        //         const owner = document.getElementById("basketOwner").value;
+
+        //         try {
+        //             const response = await fetch(`/api/fruits/${owner}`, {
+        //                 method: "GET",
+        //                 headers: { "Accept": "application/x-protobuf" }
+        //             });
+
+        //             const buffer = await response.arrayBuffer();
+        //             const decodedMessage = FruitResponse.decode(new Uint8Array(buffer));
+        //             const basket = decodedMessage.basket;
+
+        //             let fruitList = basket.fruits.map(f => `${f.name} (${f.color})`).join(', ');
+            
+        //             document.getElementById("fruitBasketResponse").textContent = 
+        //                 `Owner: ${basket.owner}\nFruits: ${fruitList}\nTotal Weight: ${basket.totalWeight}g`;
+        //         } catch (error) {
+        //             console.error("Error fetching fruit basket:", error);
+        //             document.getElementById("fruitBasketResponse").textContent = "Error: " + error.message;
+        //         }
+        //     });
+        // });
+        const ProtoLoader = {
+            load: async (protoPath) => {
+                return new Promise((resolve, reject) => {
+                    protobuf.load(protoPath, (err, root) => {
+                        if (err) reject(err);
+                        else resolve(root);
+                    });
+                });
+            }
+        };
+
+        const FruitBasketService = {
+            getFruitBasket: async (owner, FruitResponse) => {
+                const response = await fetch(`/api/fruits/${owner}`, {
+                    method: "GET",
+                    headers: { "Accept": "application/x-protobuf" }
+                });
+                const buffer = await response.arrayBuffer();
+                return FruitResponse.decode(new Uint8Array(buffer));
+            }
+        };
+
+        const FruitBasketFormatter = {
+            formatBasket: (basket) => {
+                const fruitList = basket.fruits.map(f => `${f.name} (${f.color})`).join(', ');
+                return `Owner: ${basket.owner}\nFruits: ${fruitList}\nTotal Weight: ${basket.totalWeight}g`;
+            }
+        };
+
+        const UIManager = {
+            displayFruitBasket: (formattedBasket) => {
+                document.getElementById("fruitBasketResponse").textContent = formattedBasket;
+            },
+            displayError: (error) => {
+                console.error("Error fetching fruit basket:", error);
+                document.getElementById("fruitBasketResponse").textContent = "Error: " + error.message;
+            }
+        };
+
+        async function initializeFruitBasketDemo() {
+            try {
+                const root = await ProtoLoader.load("/Protos/fruits.proto");
+                const FruitResponse = root.lookupType("FruitResponse");
+
+                document.getElementById("getFruitBasketButton").addEventListener("click", async () => {
+                    const owner = document.getElementById("basketOwner").value;
+                    try {
+                        const response = await FruitBasketService.getFruitBasket(owner, FruitResponse);
+                        const formattedBasket = FruitBasketFormatter.formatBasket(response.basket);
+                        UIManager.displayFruitBasket(formattedBasket);
+                    } catch (error) {
+                        UIManager.displayError(error);
+                    }
+                });
+            } catch (error) {
+                UIManager.displayError(error);
+            }
+        }
+
+        initializeFruitBasketDemo();
+
+        </script>
 </body>
 </html>
